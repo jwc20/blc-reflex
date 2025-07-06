@@ -1,4 +1,5 @@
 
+from abc import ABC, abstractmethod
 import reflex as rx
 
 
@@ -12,21 +13,25 @@ class State(rx.State):
         self.count -= 1
 
 
+class InputField:
+    pass
+
+class Weight(ABC):
+    pass
+
+class Plate(Weight):
+    pass
+
+class Barbell(Weight):
+    pass
+
+
 def index():
-    return rx.hstack(
-        rx.button(
-            "decrement",
-            color_scheme="ruby",
-            on_click=State.decrement,
-        ),
-        rx.heading(State.count, font_size="2em"),
-        rx.button(
-            "Increment",
-            color_scheme="grass",
-            on_click=State.increment,
-        ),
-        spacing="4",
+    return rx.box(
+        rx.text("This is a page"),
+        # Reference components defined in other functions.
     )
+
 
 
 app = rx.App()
