@@ -1,4 +1,5 @@
 
+import blc
 from abc import ABC, abstractmethod
 import reflex as rx
 
@@ -16,7 +17,7 @@ class State(rx.State):
 class InputField:
     pass
 
-class Weight(ABC):
+class Blc(ABC):
     pass
 
 class Plate(Weight):
