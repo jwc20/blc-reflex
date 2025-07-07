@@ -49,15 +49,15 @@ wheels = [
 
 [[package]]
 name = "blc-py"
-version = "0.1.0"
+version = "0.1.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "build" },
     { name = "pytest" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/49/67/cf930a1464a65b9bdfcf184ccf1469481f4eaac992b21fa4456c070f877f/blc_py-0.1.0.tar.gz", hash = "sha256:ada641ed91ab96ac63b3cadfe70d6e323484f242190761c3a2b38bc12b4dc169", size = 3896 }
+sdist = { url = "https://files.pythonhosted.org/packages/47/e2/62ff170270ec970afbbae10de8097dd8a6870f3788ea6be525cf14daf3c4/blc_py-0.1.2.tar.gz", hash = "sha256:fb716af9b283a94b95c3be8d555c3b0993f47a17d7ff86c0872fa0461ceff2bc", size = 3865 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1c/0d/8d50bbc713c29bd325ab7016a3bf112168d4a47a0f4da8ca5fb19a69bdb5/blc_py-0.1.0-py3-none-any.whl", hash = "sha256:e7ee0c55e00d1f3c8733b801b797819a671847ca086f6cbce6f125486988013c", size = 3065 },
+    { url = "https://files.pythonhosted.org/packages/ab/71/b2c9fc42a3f51afe3d8f67751df2ba08f34cedb587f481bbfb97ff48b22d/blc_py-0.1.2-py3-none-any.whl", hash = "sha256:59d41dc3aaefc76ac2f9e58c6b259444348581179e0d83b25de248b56f57118b", size = 3044 },
 ]
 
 [[package]]

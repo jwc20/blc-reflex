@@ -1,22 +1,20 @@
 import reflex as rx
-from typing import List, Dict, Tuple, Optional
+from typing import List
 from blc import Blc
-import svg
 
 # Plate color configurations
 PLATE_COLORS = {
-    25: "#FF0000",    # Red
-    20: "#0000FF",    # Blue
-    15: "#FFFF00",    # Yellow
-    10: "#00FF00",    # Green
-    5: "#FFFFFF",     # White
-    2.5: "#FF0000",   # Red
-    2: "#0000FF",     # Blue
-    1.5: "#FFFF00",   # Yellow
-    1: "#00FF00",     # Green
-    0.5: "#FFFFFF"    # White
+    25: "#FF0000",  # Red
+    20: "#0000FF",  # Blue
+    15: "#FFFF00",  # Yellow
+    10: "#00FF00",  # Green
+    5: "#FFFFFF",  # White
+    2.5: "#FF0000",  # Red
+    2: "#0000FF",  # Blue
+    1.5: "#FFFF00",  # Yellow
+    1: "#00FF00",  # Green
+    0.5: "#FFFFFF"  # White
 }
-
 
 PLATE_CONFIGS = {
     25: {"width": 64, "height": 450, "weight": 25, "xi": 546, "yi": 45, "color": "#FF0000"},
@@ -36,123 +34,78 @@ BARBELL_CONFIG = {"bar_weight": 20, "sleeve_length": 415, "xi": 66, "yi": 171}
 
 
 class State(rx.State):
-    target_weight: str = "100"
+    target_weight: str = "20"
     plates_needed: List[float] = []
     barbell_type: str = "men"
     use_collar: bool = False
     error_message: str = ""
-    
+
     @rx.var
     def barbell_weight(self) -> int:
         return 15 if self.barbell_type == "women" else 20
-    
-    @rx.var 
+
+    @rx.var
     def total_plates_needed(self) -> int:
         return len(self.plates_needed) * 2
-    
+
     @rx.var
     def plates_display(self) -> str:
         if not self.plates_needed:
             return "No plates needed"
         return ", ".join([f"{weight}kg" for weight in self.plates_needed])
-    
+
     @rx.var
     def complete_svg(self) -> str:
         """Generate complete SVG as a string"""
         svg_parts = []
-        
+
         # SVG opening tag
-        svg_parts.append('<svg viewBox="0 0 1024 768" width="1024px" height="768px" style="background: #f5f5f5; border-radius: 8px; display: block; margin: 0 auto;">')
-        
+        svg_parts.append(
+            '<svg viewBox="0 0 1024 768" width="1024px" height="768px" style="background: #f5f5f5; border-radius: 8px; display: block; margin: 0 auto;">')
+
         # shaft
         svg_parts.append('<rect x="0" y="384" width="36" height="25" fill="#666" stroke="#333" stroke-width="2"/>')
-
-        # Left sleeve
-        svg_parts.append('<rect x="66" y="371" width="415" height="51" fill="#666" stroke="#333" stroke-width="2"/>')
-        
-        # Left sleeve end cap
+        # collar
         svg_parts.append('<rect x="35" y="346" width="32" height="101" fill="#555" stroke="#333" stroke-width="2"/>')
-        
+        # sleeve
+        svg_parts.append('<rect x="66" y="371" width="415" height="51" fill="#666" stroke="#333" stroke-width="2"/>')
 
-        
         # Add plates if any
         if self.plates_needed:
-            # Left side plates
+            # side plates
             x_left = 66
             for weight in self.plates_needed:
                 color = PLATE_COLORS.get(weight, "#999")
-                
-        
 
-                width, height = PLATE_CONFIGS[weight]["width"], PLATE_CONFIGS[weight]["height"] 
-                
-                y_pos = 384 - height // 2
-                
+                width, height = PLATE_CONFIGS[weight]["width"], PLATE_CONFIGS[weight]["height"]
+
+                y_pos = 394 - height // 2
+
                 # Plate rectangle
-                svg_parts.append(f'<rect x="{x_left}" y="{y_pos}" width="{width}" height="{height}" fill="{color}" stroke="#000" stroke-width="2" rx="2"/>')
-                
+                svg_parts.append(
+                    f'<rect x="{x_left}" y="{y_pos}" width="{width}" height="{height}" fill="{color}" stroke="#000" stroke-width="2" rx="2"/>')
+
                 # Weight text
-                text_color = "black" if weight in [5, 15] else "white"
                 text_x = x_left + width // 2
                 text_y = y_pos + height // 2 + 3
-                svg_parts.append(f'<text x="{text_x}" y="{text_y}" text-anchor="middle" font-size="10" font-weight="bold" fill="{text_color}">{weight}</text>')
-                
+                svg_parts.append(
+                    f'<text x="{text_x}" y="{text_y}" text-anchor="middle" font-size="10" font-weight="bold" fill="black">{weight}</text>')
+
                 x_left += width + 2
-            
-            
+
             # Add collars if enabled
             if self.use_collar:
                 collar_x_left = x_left
-                svg_parts.append(f'<rect x="{collar_x_left}" y="135" width="15" height="30" fill="#404040" stroke="#000" stroke-width="2"/>')
-                svg_parts.append(f'<text x="{collar_x_left + 7}" y="153" text-anchor="middle" font-size="8" fill="white" font-weight="bold">2.5</text>')
-                
-        
+                svg_parts.append(
+                    f'<rect x="{collar_x_left}" y="346" width="52" height="101" fill="#404040" stroke="#000" stroke-width="2"/>')
+                # svg_parts.append(
+                #     f'<text x="{collar_x_left + 7}" y="346" text-anchor="middle" font-size="8" fill="black" font-weight="bold">2.5</text>')
+
         # Close SVG
         svg_parts.append('</svg>')
-        
+
         return ''.join(svg_parts)
-    
-    def _get_blc_instance(self) -> Blc:
-        """Create a new BLC instance for calculations"""
-        try:
-            from blc import Plates, Barbell
-            plates = Plates()
-            barbell = Barbell(weight=20 if self.barbell_type == "men" else 15)
-            blc = Blc(weight=100, plates=plates, barbell=barbell)
-        except:
-            try:
-                from blc import Plates, Barbell
-                plates = Plates()
-                barbell = Barbell(weight=20 if self.barbell_type == "men" else 15)
-                blc = Blc(weight=100, plates=plates, barbell=barbell)
-            except:
-                return None
-        return blc
-    
-    def simple_calculate_plates(self, target_weight: float) -> List[float]:
-        """Fallback calculation method if BLC package doesn't work as expected"""
-        weights = [25, 20, 15, 10, 5, 2.5, 2, 1.5, 1, 0.5]
-        barbell_weight = 15 if self.barbell_type == "women" else 20
-        collar_weight = 2.5 if self.use_collar else 0
-        
-        weight_to_load = target_weight - barbell_weight - collar_weight
-        
-        if weight_to_load <= 0:
-            return []
-        
-        weight_per_side = weight_to_load / 2
-        plates = []
-        remaining = weight_per_side
-        
-        for plate_weight in weights:
-            while remaining >= plate_weight and len([p for p in plates if p == plate_weight]) < 2:
-                plates.append(plate_weight)
-                remaining -= plate_weight
-                if remaining < 0.1:  # Close enough
-                    break
-        
-        return plates if remaining < 0.1 else []
-    
+
     def calculate_plates(self):
         try:
             weight = float(self.target_weight)
@@ -160,48 +113,47 @@ class State(rx.State):
                 self.error_message = "Please enter a positive weight"
                 self.plates_needed = []
                 return
-            
-            # Try using BLC package
-            blc = self._get_blc_instance()
-            
+
+            from blc import Plates, Barbell
+            plates = Plates()
+            barbell = Barbell(weight=20 if self.barbell_type == "men" else 15)
+            blc = Blc(plates=plates, barbell=barbell)
+
             if blc is not None:
                 try:
-                    plates_result = blc.calculate_plates(weight)
+                    plates_result = blc.calculate_plates(weight, self.use_collar)
                     plates = []
-                    for plate_weight, quantity in plates_result:
-                        for _ in range(quantity):
-                            plates.append(plate_weight)
+                    for plate_weight in plates_result:
+                        plates.append(plate_weight)
                     self.plates_needed = plates
                     self.error_message = ""
                     return
                 except Exception as e:
                     pass
-            
-            # Use simple calculation as fallback
-            plates = self.simple_calculate_plates(weight)
-            
+
             if plates:
                 self.plates_needed = plates
                 self.error_message = ""
             else:
                 self.error_message = "Cannot achieve exact weight with available plates"
                 self.plates_needed = []
-                
+
         except ValueError:
             self.error_message = "Please enter a valid number"
             self.plates_needed = []
-    
+
     def set_target_weight(self, value: str):
         self.target_weight = value
         self.calculate_plates()
-    
+
     def set_barbell_type(self, value: str):
         self.barbell_type = value
         self.calculate_plates()
-    
+
     def toggle_collar(self):
         self.use_collar = not self.use_collar
         self.calculate_plates()
+
 
 def create_plates_display() -> rx.Component:
     """Create visual display of plates using boxes"""
@@ -215,7 +167,7 @@ def create_plates_display() -> rx.Component:
                     lambda plate: rx.box(
                         rx.text(
                             f"{plate}kg",
-                            color=rx.cond(plate == 5, "black", "white"),
+                            color="black",
                             font_weight="bold",
                             font_size="14px"
                         ),
@@ -230,7 +182,7 @@ def create_plates_display() -> rx.Component:
                         background_color=rx.match(
                             plate,
                             (25, PLATE_COLORS[25]),
-                            (20, PLATE_COLORS[20]), 
+                            (20, PLATE_COLORS[20]),
                             (15, PLATE_COLORS[15]),
                             (10, PLATE_COLORS[10]),
                             (5, PLATE_COLORS[5]),
@@ -251,18 +203,19 @@ def create_plates_display() -> rx.Component:
             align="center"
         ),
         rx.box(
-            rx.text("Enter a weight to see plate configuration", 
-                   font_style="italic", 
-                   color="gray"),
+            rx.text("Enter a weight to see plate configuration",
+                    font_style="italic",
+                    color="gray"),
             text_align="center"
         )
     )
 
+
 def index() -> rx.Component:
     return rx.container(
         rx.vstack(
-            rx.heading("Barbell Loading Calculator", size="9", margin_bottom="2rem", text_align="center"),
-            
+            rx.heading("Barbell Loading Calculator", size="7", text_align="center"),
+
             # Input controls
             rx.card(
                 rx.hstack(
@@ -305,7 +258,7 @@ def index() -> rx.Component:
                 ),
                 padding="2rem"
             ),
-            
+
             # Error message
             rx.cond(
                 State.error_message != "",
@@ -317,7 +270,6 @@ def index() -> rx.Component:
                 ),
                 rx.box()
             ),
-            
 
             rx.card(
                 rx.vstack(
@@ -328,10 +280,10 @@ def index() -> rx.Component:
                 ),
                 # padding="1.5rem"
             ),
-            
+
             # Plates display
             create_plates_display(),
-            
+
             spacing="4",
             align="center",
             # width="100%"
@@ -341,11 +293,12 @@ def index() -> rx.Component:
         padding="2rem"
     )
 
+
 app = rx.App(
     style={
         # "font_family": "Inter, system-ui, sans-serif",
-        # "background": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        # "min_height": "1000vh"
+        "background": "#201f24",
+        "min_height": "100vh"
     }
 )
 app.add_page(index)
